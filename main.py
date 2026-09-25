@@ -412,9 +412,35 @@ def diagnose():
     print("Data diagnostic completed successfully; no Telegram alerts sent.")
 
 
+def diagnose_crypto():
+    """Check only first two crypto pairs to conserve free API credits."""
+    cfg = json.loads(CONFIG.read_text(encoding="utf-8"))
+    now = datetime.now(timezone.utc)
+    failures = []
+    for pair in cfg["crypto_symbols"][:2]:
+        try:
+            bars = completed_bars(fetch_bars(pair, crypto=True), now, crypto=True)
+            _, values = indicators_for(bars, {}, cfg)
+            if not values:
+                raise RuntimeError(f"insufficient completed candles: {len(bars)}")
+            volume = "unavailable" if values["volume_ratio"] is None else f'{values["volume_ratio"]:.2f}x'
+            print(
+                f"{pair}: CRYPTO API OK, candles {len(bars)}, "
+                f"RSI {values['rsi']:.1f}, volume {volume}, "
+                f"EMA20/50 {values['ema_fast']:.5g}/{values['ema_slow']:.5g}, "
+                f"ATR ratio {values['atr_ratio']:.2f}x"
+            )
+        except Exception as exc:
+            failures.append(pair)
+            print(f"{pair}: CRYPTO DIAGNOSTIC ERROR: {exc}", file=sys.stderr)
+    if failures:
+        raise RuntimeError("Crypto provider did not validate: " + ", ".join(failures))
+    print("Crypto API diagnostic completed; no Telegram alerts sent.")
+
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", choices=["chat-id", "test", "scan", "diagnose"], required=True)
+    parser.add_argument("--mode", choices=["chat-id", "test", "scan", "diagnose", "diagnose-crypto"], required=True)
     mode = parser.parse_args().mode
     if mode == "chat-id":
         find_chat_id()
@@ -423,6 +449,8 @@ def main():
         print("Telegram test message delivered")
     elif mode == "diagnose":
         diagnose()
+    elif mode == "diagnose-crypto":
+        diagnose_crypto()
     else:
         scan()
 
