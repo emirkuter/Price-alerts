@@ -21,18 +21,18 @@
       "SUI/USD",
       "AVAX/USD",
       "HBAR/USD",
-      "BTW/USD",
       "TAO/USD",
+      "BTW/USD",
       "SHIB/USD",
       "CRO/USD",
       "M/USD",
-      "ONDO/USD",
       "ENA/USD",
+      "ONDO/USD",
       "OKB/USD",
       "AAVE/USD",
-      "USDY/USD"
+      "MNT/USD"
     ],
-    "checked_at": null
+    "checked_at": "2026-09-25T23:44:39.106337+00:00"
   },
   "RAIN/USD": "2026-09-25T16:00:00+00:00",
   "NEAR/USD": "2026-09-25T16:00:00+00:00",
@@ -77,5 +77,6 @@
   "BTW/USD": "2026-09-25T16:00:00+00:00",
   "AAVE/USD": "2026-09-25T16:00:00+00:00",
   "GOOGL": "2026-09-25T13:30:00-04:00",
-  "ALB": "2026-09-25T13:30:00-04:00"
+  "ALB": "2026-09-25T13:30:00-04:00",
+  "MNT/USD": "2026-09-25T16:00:00+00:00"
 }
