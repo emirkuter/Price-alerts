@@ -223,6 +223,56 @@ def make_signals(
     return reasons, indicators
 
 
+STABLE_IDS = {
+    "tether", "usd-coin", "dai", "ethena-usde", "first-digital-usd",
+    "paypal-usd", "usdd", "true-usd", "frax", "usds", "pax-dollar",
+    "binance-usd", "usde", "tether-gold", "pax-gold",
+}
+STABLE_SYMBOLS = {"USDT", "USDC", "DAI", "USDE", "FDUSD", "PYUSD",
+                  "USDD", "TUSD", "FRAX", "USDS", "BUSD", "PAXG", "XAUT"}
+
+
+def crypto_universe(state, config, now):
+    """Refresh top-30 non-stable, non-wrapped assets at most every 6 hours."""
+    previous = state.get("_crypto_universe", {})
+    last = previous.get("checked_at")
+    if last:
+        try:
+            if now - datetime.fromisoformat(last) < timedelta(hours=6):
+                return previous.get("pairs") or config["crypto_symbols"]
+        except ValueError:
+            pass
+    pairs = previous.get("pairs") or config["crypto_symbols"]
+    try:
+        params = urlencode({"vs_currency": "usd", "order": "market_cap_desc",
+                            "per_page": 100, "page": 1, "sparkline": "false"})
+        entries = request_json("https://api.coingecko.com/api/v3/coins/markets?" + params)
+        selected = []
+        seen = set()
+        for coin in entries:
+            symbol = str(coin.get("symbol", "")).upper()
+            name = str(coin.get("name", "")).lower()
+            coin_id = str(coin.get("id", "")).lower()
+            if (not symbol or symbol in seen or coin_id in STABLE_IDS
+                    or symbol in STABLE_SYMBOLS
+                    or any(x in name for x in ("wrapped", "bridged", "staked", "tokenized", "synthetic", "liquid staking"))
+                    or not coin.get("market_cap")):
+                continue
+            selected.append(symbol + "/USD")
+            seen.add(symbol)
+            if len(selected) == 30:
+                break
+        if len(selected) == 30:
+            pairs = selected
+            print("CoinGecko top-30 universe refreshed.")
+        else:
+            print("Incomplete CoinGecko list, using last known 30 pairs.")
+    except Exception as exc:
+        print(f"CoinGecko unavailable; using cached/fallback list: {type(exc).__name__}")
+    state["_crypto_universe"] = {"pairs": pairs, "checked_at": now.isoformat()}
+    return pairs
+
+
 def scheduled_batch(now, config):
     """16 UTC slots per 4h, two crypto pairs per slot; US stock close sweeps."""
     utc = now.astimezone(timezone.utc)
@@ -235,7 +285,7 @@ def scheduled_batch(now, config):
             begin = datetime.combine(ny.date(), time(hour, minute), NY)
             if begin <= ny < begin + timedelta(hours=1):
                 offset = int((ny - begin).total_seconds() // 900)
-                names = list(config["symbols"])
+                names = [n for n, v in config["symbols"].items() if v.get("enabled", True)]
                 stocks = names[offset * 2:offset * 2 + 2]
                 break
     return stocks, cryptos
@@ -258,11 +308,13 @@ def scan():
     config = json.loads(CONFIG.read_text(encoding="utf-8"))
     state = json.loads(STATE.read_text(encoding="utf-8")) if STATE.exists() else {}
     now = datetime.now(timezone.utc)
+    pairs = crypto_universe(state, config, now)
+    config["crypto_symbols"] = pairs
     stocks, cryptos = scheduled_batch(now, config)
     targets = [(symbol, False) for symbol in stocks]
     targets += [(symbol, True) for symbol in cryptos]
     print(f"Batch: {len(stocks)} stocks + {len(cryptos)} crypto pairs.")
-    changed = False
+    changed = "_crypto_universe" in state
     for symbol, crypto in targets:
         try:
             bars = completed_bars(fetch_bars(symbol, crypto=crypto), now, crypto=crypto)
