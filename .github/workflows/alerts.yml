@@ -16,6 +16,7 @@ on:
           - test
           - scan
           - diagnose
+          - diagnose-crypto
 
 permissions:
   contents: write
