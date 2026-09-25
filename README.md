@@ -3,7 +3,7 @@
 Technical Telegram alerts using completed **4-hour** candles, never live intrabar alerts. No trades placed; not a stop-loss system.
 
 ## Stock symbols
-Active: **FLNC, TSLA, LEU, RDDT, GOOGL, ALB, TTWO**. `SPCX` is listed but **disabled pending symbol clarification**: the older SPCX ETF ticker changed to SPCK in 2026, and the desired SPCX listing must be confirmed before any alert is sent for an unintended asset.
+Active: **FLNC, TSLA, LEU, RDDT, GOOGL, ALB, TTWO, SPCX**. `SPCX` is the SpaceX share ticker; the older SPAC ETF previously trading as SPCX changed to `SPCK` in April 2026. Verify provider data availability for each newly added symbol.
 
 ## Crypto universe
 - Select the **top 30 by market cap** automatically from CoinGecko, excluding known stablecoins, wrapped, tokenized and staked assets (including gold-backed assets). Refresh at most every 6 hours.
@@ -29,6 +29,6 @@ Multiple signals in the same candle are combined into one Telegram message. **Su
 Configure **repository secrets** `TWELVE_DATA_API_KEY`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` in Settings → Secrets and variables → Actions.
 Enable the repository **variable** `ALERTS_ENABLED=true` to activate schedules.
 
-To verify data access, run **Actions → 4-Hour Stock Alerts → Run workflow → diagnose**. Diagnostic is limited to the first 4 active equities to avoid spending all daily credits; inspect each symbol's `API OK` line. Use **scan** to execute one staggered live batch, checking `DATA/DELIVERY ERROR` lines for any unsupported pairs. The test mode only checks Telegram connectivity.
+To verify data access, run **Actions → 4-Hour Stock Alerts → Run workflow → diagnose**. Diagnostic is limited to the first 4 active equities to avoid spending all daily credits; inspect each symbol's `API OK` line. **New tickers still require provider validation**. Use **scan** to execute one staggered live batch, checking `DATA/DELIVERY ERROR` lines for any unsupported pairs. The test mode only checks Telegram connectivity.
 
 Do not put secrets in the repository or share them in screenshots. Use broker-native stops for time-critical orders.
