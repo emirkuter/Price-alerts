@@ -22,8 +22,7 @@
       "support": null
     },
     "SPCX": {
-      "support": null,
-      "enabled": false
+      "support": null
     }
   },
   "crypto_symbols": [
@@ -58,7 +57,7 @@
     "QNT/USD",
     "ALGO/USD"
   ],
-  "crypto_list_source": "Fallback seed list only; automatic daily CoinGecko market-cap selection excluding stablecoins and wrapped/staked assets (subject to API and Twelve Data availability)",
+  "crypto_list_source": "Market-cap top 30 (stablecoins/wrapped excluded), refreshed opportunistically from CoinGecko; Twelve Data pair availability must be validated",
   "volume_multiplier": 2,
   "ema_fast_period": 20,
   "ema_slow_period": 50,
