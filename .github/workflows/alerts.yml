@@ -2,8 +2,8 @@ name: 4-Hour Stock Alerts
 
 on:
   schedule:
-    # Roughly every 10 minutes; GitHub may queue or delay scheduled runs.
-    - cron: '7,17,27,37,47,57 * * * *'
+    # Two crypto pairs per 15m slot (all 30 covered about every 4h); US stocks after bar closes.
+    - cron: '11,26,41,56 * * * *'
   workflow_dispatch:
     inputs:
       mode:
@@ -28,7 +28,7 @@ jobs:
   alerts:
     if: ${{ github.event_name == 'workflow_dispatch' || vars.ALERTS_ENABLED == 'true' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 4
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
