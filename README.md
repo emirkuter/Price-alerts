@@ -16,7 +16,7 @@ Aynı mumda birden fazla gösterge tetiklenirse **tek Telegram mesajında** bild
    - `TELEGRAM_BOT_TOKEN`
    - `TELEGRAM_CHAT_ID`
 2. **Actions → 4-Hour Stock Alerts → Run workflow → test** ile Telegram test mesajını doğrula.
-3. Gerçek veri akışı testi için **Run workflow → scan** kullan. Bu test sadece ABD normal işlem saatlerinde veri ister; yeni kapanmış mumda sinyal yoksa Telegram mesajı gönderilmez. GitHub işlem kayıtlarını kontrol et.
-4. Zamanlı taramayı etkinleştirmek için **Settings → Secrets and variables → Actions → Variables** altında `ALERTS_ENABLED` değişkenini `true` yap.
+3. Piyasa açık olmasa bile **Run workflow → diagnose** ile Twelve Data erişimini ve dört göstergenin canlı veri üzerinden hesaplanmasını doğrula. Bu mod Telegram mesajı göndermez. GitHub işlem kayıtlarında her hissenin yanında `API OK` ve değerler bulunmalı.\n4. Normal tarama için **Run workflow → scan** kullan. Bu test yalnızca ABD normal işlem saatlerinde veri ister; yeni tamamlanmış mumda sinyal yoksa Telegram mesajı gönderilmez.
+5. Zamanlı taramayı etkinleştirmek için **Settings → Secrets and variables → Actions → Variables** altında `ALERTS_ENABLED` değişkenini `true` yap.
 
 GitHub yaklaşık 10 dakikalık aralıklarla tetiklemeyi dener; tetiklemeler gecikebilir. Sistem yalnızca tamamlanmış 4 saatlik mumlarla değerlendirme yapar ve aynı mum için tekrar uyarı üretmez. API kotasını Twelve Data panelinden takip et. Bu araç işlem açmaz veya stop-loss yerine geçmez.
