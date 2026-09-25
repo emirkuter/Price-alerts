@@ -1,19 +1,22 @@
 # Emir Trade Alarm
 
-FLNC, TSLA and LEU için tamamlanmış 4 saatlik mumlarla ücretsiz teknik alarm denemesi. RSI(14) 20 veya 15 altına geçiş, önceki 20 mum ortalamasına göre en az 2x hacim ve elle belirlenen destek bölgeleri. Alım/satım yapmaz; stop-loss yerine geçmez.
+FLNC, TSLA ve LEU için **tamamlanmış 4 saatlik mumlara göre** otomatik Telegram uyarıları.
 
-## Kurulum
-1. GitHub deponda **Settings → Secrets and variables → Actions → Secrets → New repository secret** ekranını aç.
-2. **TWELVE_DATA_API_KEY** (Twelve Data hesabındaki API key) ve **TELEGRAM_BOT_TOKEN** (BotFather'dan aldığın token) adında iki ayrı secret oluştur. Anahtarları sohbetlerde ve kodda paylaşma.
-3. Telegram'da botunu aç, **Start** de ve **/start** gönder.
-4. GitHub **Actions → 4-Hour Stock Alerts → Run workflow** ekranında **chat-id** seçip çalıştır. İşlem bittikten sonra çalışmanın **Run selected mode** logunda kendi sohbet ID'ni göreceksin.
-5. Aynı Secrets bölümüne **TELEGRAM_CHAT_ID** isminde üçüncü secret olarak sadece kendi sohbet ID'ni ekle.
-6. **Run workflow → test** seçip çalıştır. Telegram'a test mesajı ulaşmalı.
-7. Test başarılıysa **Settings → Secrets and variables → Actions → Variables** ekranında **ALERTS_ENABLED** adlı variable oluştur; değeri **true** olsun. Bu yapılana kadar zamanlı tarama kapalıdır.
+## Dört aktif teknik gösterge
+- **RSI(14):** 20 veya 15 eşiğinin aşağı yönde geçilmesi.
+- **Hacim:** Son tamamlanmış 4 saatlik mum hacminin önceki 20 tamamlanmış 4 saatlik mum ortalamasının en az **2 katı** olması.
+- **EMA 20/50:** EMA 20'nin EMA 50'yi yukarı veya aşağı kesmesi.
+- **ATR(14):** Mevcut ATR'nin önceki 20 tamamlanmış mumdaki ATR ortalamasının **1,5 katına ilk kez ulaşması**. ATR yön belirtmez.
 
-## Ayarlar
-- **config.json** içinde FLNC, TSLA, LEU destekleri başlangıçta `null`: destek alarmı kapalı. Kendin belirlediğin seviyeleri sayısal USD değeri olarak yazabilirsin.
-- Tamamlanmış 4 saatlik mumlar; RSI eşiklerinin aşağı geçilmesi, hacmin önceki 20 mum ortalamasına göre >=2x olması, belirlenmiş desteğe yukarıdan %1 yaklaşma veya altına ilk kapanış.
-- GitHub yaklaşık 10 dakikada bir kontrol etmeye çalışır, ancak GitHub'ın zamanlaması ve veri sağlayıcı gecikebilir. ABD borsasının normal işlem saatleri dışında istek yapılmaz.
-- İşlenen mumlar **state.json** dosyasında tutulur; aynı mum için tekrar bildirim gönderilmez. Uyarılar gerçek zamanlı değildir; çıkış/stop emirlerini aracı kurumunda tut.
-- Ücretsiz Twelve Data planının geçerli kotasını kendi panelinden kontrol et. Başka servislerde de aynı API anahtarını kullanıyorsan kotan paylaşılır.
+Aynı mumda birden fazla gösterge tetiklenirse **tek Telegram mesajında** bildirilir. Mesajda tüm dört göstergenin değerleri de yer alır. Destek/direnç kontrolleri şimdilik kapalıdır (`config.json` içinde her sembolde `support: null`).
+
+## İlk kurulum
+1. **Settings → Secrets and variables → Actions → Repository secrets** altında şunları oluştur:
+   - `TWELVE_DATA_API_KEY`
+   - `TELEGRAM_BOT_TOKEN`
+   - `TELEGRAM_CHAT_ID`
+2. **Actions → 4-Hour Stock Alerts → Run workflow → test** ile Telegram test mesajını doğrula.
+3. Gerçek veri akışı testi için **Run workflow → scan** kullan. Bu test sadece ABD normal işlem saatlerinde veri ister; yeni kapanmış mumda sinyal yoksa Telegram mesajı gönderilmez. GitHub işlem kayıtlarını kontrol et.
+4. Zamanlı taramayı etkinleştirmek için **Settings → Secrets and variables → Actions → Variables** altında `ALERTS_ENABLED` değişkenini `true` yap.
+
+GitHub yaklaşık 10 dakikalık aralıklarla tetiklemeyi dener; tetiklemeler gecikebilir. Sistem yalnızca tamamlanmış 4 saatlik mumlarla değerlendirme yapar ve aynı mum için tekrar uyarı üretmez. API kotasını Twelve Data panelinden takip et. Bu araç işlem açmaz veya stop-loss yerine geçmez.
