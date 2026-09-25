@@ -22,7 +22,8 @@
       "support": null
     },
     "SPCX": {
-      "support": null
+      "support": null,
+      "enabled": false
     }
   },
   "crypto_symbols": [
@@ -57,7 +58,7 @@
     "QNT/USD",
     "ALGO/USD"
   ],
-  "crypto_list_source": "2026-09-25 market-cap snapshot; excludes stablecoins, wrapped and tokenized assets; static, not an automatically rebalanced index",
+  "crypto_list_source": "Fallback seed list only; automatic daily CoinGecko market-cap selection excluding stablecoins and wrapped/staked assets (subject to API and Twelve Data availability)",
   "volume_multiplier": 2,
   "ema_fast_period": 20,
   "ema_slow_period": 50,
@@ -66,8 +67,5 @@
   "atr_spike_multiple": 1.5,
   "support_tolerance": 0.01,
   "max_stock_signal_age_minutes": 70,
-  "max_crypto_signal_age_minutes": 125,
-  "max_stock_calls_per_run": 4,
-  "max_crypto_calls_per_run": 4,
-  "daily_credit_safety_cap": 740
+  "max_crypto_signal_age_minutes": 245
 }
