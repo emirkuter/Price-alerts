@@ -57,7 +57,7 @@ class StockAlarmTests(unittest.TestCase):
         self.assertAlmostEqual(metrics["atr_ratio"], 1.0)
 
     def test_ema_bullish_crossover(self):
-        bars = sample_bars([10] * 80 + [10.05, 10.1, 10.2, 10.5, 12])
+        bars = sample_bars([10] * 89 + [12])
         alerts, metrics = make_signals(bars)
         self.assertGreater(metrics["ema_fast"], metrics["ema_slow"])
         self.assertTrue(any("YUKARI" in reason for reason in alerts))
