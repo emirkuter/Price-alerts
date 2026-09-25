@@ -1,7 +1,7 @@
 import unittest
-from datetime import datetime
+from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
-from main import rsi_wilder, candle_end, completed_bars, ema_series, atr_series, make_signals
+from main import rsi_wilder, candle_end, completed_bars, ema_series, atr_series, make_signals, scheduled_batch
 
 NY = ZoneInfo("America/New_York")
 
@@ -69,6 +69,32 @@ class StockAlarmTests(unittest.TestCase):
         alerts, metrics = make_signals(bars)
         self.assertGreaterEqual(metrics["atr_ratio"], 1.5)
         self.assertTrue(any("ATR" in reason for reason in alerts))
+
+    def test_missing_crypto_volume(self):
+        bars = sample_bars([10] * 90, [0] * 90)
+        alerts, m = make_signals(bars)
+        self.assertIsNone(m["volume_ratio"])
+        self.assertAlmostEqual(m["ema_fast"], 10.0)
+        self.assertFalse(any("hacim" in item.lower() for item in alerts))
+
+    def test_crypto_utc_candle_completion(self):
+        now = datetime(2026, 9, 25, 8, 10, tzinfo=timezone.utc)
+        bars = [{"dt": datetime(2026, 9, 25, hour, tzinfo=timezone.utc)}
+                for hour in (0, 4, 8)]
+        self.assertEqual(len(completed_bars(bars, now, crypto=True)), 2)
+
+    def test_thirty_crypto_pairs_in_sixteen_staggered_slots(self):
+        cfg = {"symbols": {"FLNC": {}, "SPCX": {"enabled": False}},
+               "crypto_symbols": [f"C{i}/USD" for i in range(30)]}
+        seen = []
+        for idx in range(16):
+            now = datetime(2026, 9, 26, idx // 4, (idx % 4) * 15 + 11,
+                           tzinfo=timezone.utc)
+            stock, crypto = scheduled_batch(now, cfg)
+            self.assertEqual(stock, [])
+            seen += crypto
+        self.assertEqual(len(seen), 30)
+        self.assertEqual(len(set(seen)), 30)
 
     def test_support_is_disabled_by_default(self):
         bars = sample_bars([10] * 89 + [9.8])
