@@ -1,0 +1,10 @@
+{
+  "symbols": {
+    "FLNC": {"support": null},
+    "TSLA": {"support": null},
+    "LEU": {"support": null}
+  },
+  "volume_multiplier": 2.0,
+  "support_tolerance": 0.01,
+  "max_signal_age_minutes": 70
+}
