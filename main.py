@@ -227,22 +227,66 @@ STABLE_IDS = {
     "tether", "usd-coin", "dai", "ethena-usde", "first-digital-usd",
     "paypal-usd", "usdd", "true-usd", "frax", "usds", "pax-dollar",
     "binance-usd", "usde", "tether-gold", "pax-gold",
+    "world-liberty-financial-usd", "global-dollar", "ripple-usd",
 }
 STABLE_SYMBOLS = {"USDT", "USDC", "DAI", "USDE", "FDUSD", "PYUSD",
-                  "USDD", "TUSD", "FRAX", "USDS", "BUSD", "PAXG", "XAUT"}
+                  "USDD", "TUSD", "FRAX", "USDS", "BUSD", "PAXG", "XAUT",
+                  "USD1", "USDG", "RLUSD", "EURC", "EURCV", "USDT0"}
+
+
+def eligible_crypto_coin(coin):
+    """Exclude stablecoins and tokenized/wrapped assets from CoinGecko results."""
+    symbol = str(coin.get("symbol", "")).upper()
+    name = str(coin.get("name", "")).lower()
+    coin_id = str(coin.get("id", "")).lower()
+    excluded_names = ("wrapped", "bridged", "staked", "tokenized", "synthetic",
+                      "liquid staking", "stablecoin", "stable coin", "heloc")
+    return (bool(symbol) and symbol not in STABLE_SYMBOLS
+            and not symbol.endswith("_HELOC") and coin_id not in STABLE_IDS
+            and not any(word in name for word in excluded_names)
+            and bool(coin.get("market_cap")))
+
+
+def temporarily_unsupported_crypto(state, now):
+    """Avoid retrying provider-rejected crypto pairs for 24 hours."""
+    result = {}
+    for pair, timestamp in state.get("_unsupported_crypto", {}).items():
+        try:
+            age = now - datetime.fromisoformat(timestamp)
+            if timedelta(0) <= age < timedelta(hours=24):
+                result[pair] = timestamp
+        except (ValueError, TypeError):
+            pass
+    state["_unsupported_crypto"] = result
+    return set(result)
 
 
 def crypto_universe(state, config, now):
-    """Refresh top-30 non-stable, non-wrapped assets at most every 6 hours."""
+    """Rank eligible coins by market cap, excluding recent provider 404s."""
+    unsupported = temporarily_unsupported_crypto(state, now)
     previous = state.get("_crypto_universe", {})
     last = previous.get("checked_at")
-    if last:
+
+    def allowed_pair(pair):
+        symbol = pair.split("/")[0]
+        return (pair not in unsupported and symbol not in STABLE_SYMBOLS
+                and not symbol.endswith("_HELOC"))
+
+    cached = list(dict.fromkeys(
+        pair for pair in previous.get("pairs", []) if allowed_pair(pair)
+    ))
+    fallback = list(dict.fromkeys(
+        pair for pair in config["crypto_symbols"] if allowed_pair(pair)
+    ))
+    if last and len(cached) == 30:
         try:
             if now - datetime.fromisoformat(last) < timedelta(hours=6):
-                return previous.get("pairs") or config["crypto_symbols"]
-        except ValueError:
+                return cached
+        except (ValueError, TypeError):
             pass
-    pairs = previous.get("pairs") or config["crypto_symbols"]
+
+    # Keep the supported preset as a fallback if CoinGecko is unavailable.
+    pairs = list(dict.fromkeys(cached + fallback))[:30]
     try:
         params = urlencode({"vs_currency": "usd", "order": "market_cap_desc",
                             "per_page": 100, "page": 1, "sparkline": "false"})
@@ -250,28 +294,30 @@ def crypto_universe(state, config, now):
         selected = []
         seen = set()
         for coin in entries:
-            symbol = str(coin.get("symbol", "")).upper()
-            name = str(coin.get("name", "")).lower()
-            coin_id = str(coin.get("id", "")).lower()
-            if (not symbol or symbol in seen or coin_id in STABLE_IDS
-                    or symbol in STABLE_SYMBOLS
-                    or any(x in name for x in ("wrapped", "bridged", "staked", "tokenized", "synthetic", "liquid staking"))
-                    or not coin.get("market_cap")):
+            if not eligible_crypto_coin(coin):
                 continue
-            selected.append(symbol + "/USD")
+            symbol = str(coin["symbol"]).upper()
+            pair = symbol + "/USD"
+            if symbol in seen or pair in unsupported:
+                continue
+            selected.append(pair)
             seen.add(symbol)
             if len(selected) == 30:
                 break
         if len(selected) == 30:
             pairs = selected
-            print("CoinGecko top-30 universe refreshed.")
+            print("CoinGecko top-30 eligible crypto universe refreshed.")
         else:
-            print("Incomplete CoinGecko list, using last known 30 pairs.")
+            # A partial response must never replace 30 coins with fewer coins.
+            pairs = list(dict.fromkeys(selected + cached + fallback))[:30]
+            print("Incomplete CoinGecko list; filled from previous/preset pairs.")
     except Exception as exc:
-        print(f"CoinGecko unavailable; using cached/fallback list: {type(exc).__name__}")
+        print(f"CoinGecko unavailable; using cached/preset pairs: {type(exc).__name__}")
+    if len(pairs) < 30:
+        print(f"WARNING: only {len(pairs)} eligible crypto pairs available; "
+              "provider-rejected pairs will be retried after 24 hours.")
     state["_crypto_universe"] = {"pairs": pairs, "checked_at": now.isoformat()}
     return pairs
-
 
 def scheduled_batch(now, config):
     """16 UTC slots per 4h, two crypto pairs per slot; US stock close sweeps."""
@@ -361,6 +407,14 @@ def scan():
             state[symbol] = bar_id
             changed = True
         except Exception as exc:
+            if crypto and ("HTTP 404" in str(exc)
+                           or ("Twelve Data rejected" in str(exc)
+                               and str(exc).endswith(": 404"))):
+                state.setdefault("_unsupported_crypto", {})[symbol] = now.isoformat()
+                # Refill this slot from CoinGecko at the next scheduled scan.
+                state.setdefault("_crypto_universe", {})["checked_at"] = None
+                changed = True
+                print(f"{symbol}: provider rejected pair; temporarily excluded for 24h.")
             print(f"{symbol}: DATA/DELIVERY ERROR: {exc}", file=sys.stderr)
     if changed:
         STATE.write_text(json.dumps(state, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
