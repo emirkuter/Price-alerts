@@ -1,15 +1,73 @@
 {
   "symbols": {
-    "FLNC": {"support": null},
-    "TSLA": {"support": null},
-    "LEU": {"support": null}
+    "FLNC": {
+      "support": null
+    },
+    "TSLA": {
+      "support": null
+    },
+    "LEU": {
+      "support": null
+    },
+    "RDDT": {
+      "support": null
+    },
+    "GOOGL": {
+      "support": null
+    },
+    "ALB": {
+      "support": null
+    },
+    "TTWO": {
+      "support": null
+    },
+    "SPCX": {
+      "support": null
+    }
   },
-  "volume_multiplier": 2.0,
+  "crypto_symbols": [
+    "BTC/USD",
+    "ETH/USD",
+    "BNB/USD",
+    "XRP/USD",
+    "SOL/USD",
+    "TRX/USD",
+    "ZEC/USD",
+    "HYPE/USD",
+    "DOGE/USD",
+    "XMR/USD",
+    "LINK/USD",
+    "ADA/USD",
+    "LEO/USD",
+    "XLM/USD",
+    "BCH/USD",
+    "NEAR/USD",
+    "UNI/USD",
+    "LTC/USD",
+    "AVAX/USD",
+    "HBAR/USD",
+    "SUI/USD",
+    "SHIB/USD",
+    "CRO/USD",
+    "ONDO/USD",
+    "AAVE/USD",
+    "ENA/USD",
+    "DOT/USD",
+    "ETC/USD",
+    "QNT/USD",
+    "ALGO/USD"
+  ],
+  "crypto_list_source": "2026-09-25 market-cap snapshot; excludes stablecoins, wrapped and tokenized assets; static, not an automatically rebalanced index",
+  "volume_multiplier": 2,
   "ema_fast_period": 20,
   "ema_slow_period": 50,
   "atr_period": 14,
   "atr_baseline_bars": 20,
   "atr_spike_multiple": 1.5,
   "support_tolerance": 0.01,
-  "max_signal_age_minutes": 70
+  "max_stock_signal_age_minutes": 70,
+  "max_crypto_signal_age_minutes": 125,
+  "max_stock_calls_per_run": 4,
+  "max_crypto_calls_per_run": 4,
+  "daily_credit_safety_cap": 740
 }
