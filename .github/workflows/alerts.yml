@@ -1,0 +1,54 @@
+name: 4-Hour Stock Alerts
+
+on:
+  schedule:
+    # Roughly every 10 minutes; GitHub may queue or delay scheduled runs.
+    - cron: '7,17,27,37,47,57 * * * *'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: What to do?
+        required: true
+        default: test
+        type: choice
+        options:
+          - chat-id
+          - test
+          - scan
+
+permissions:
+  contents: write
+
+concurrency:
+  group: market-alerts
+  cancel-in-progress: false
+
+jobs:
+  alerts:
+    if: ${{ github.event_name == 'workflow_dispatch' || vars.ALERTS_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check indicator calculations
+        run: python -m unittest -q test_main
+      - name: Run selected mode
+        env:
+          MODE: ${{ github.event.inputs.mode || 'scan' }}
+          TWELVE_DATA_API_KEY: ${{ secrets.TWELVE_DATA_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python main.py --mode "$MODE"
+      - name: Commit processed-candle state
+        if: ${{ github.event_name == 'schedule' || github.event.inputs.mode == 'scan' }}
+        run: |
+          if ! git diff --quiet -- state.json; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add state.json
+            git commit -m "chore: mark evaluated stock candles [skip ci]"
+            git push
+          fi
