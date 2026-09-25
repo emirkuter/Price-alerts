@@ -1,1 +1,38 @@
-{}
+{
+  "_crypto_universe": {
+    "pairs": [
+      "BTC/USD",
+      "ETH/USD",
+      "BNB/USD",
+      "XRP/USD",
+      "SOL/USD",
+      "TRX/USD",
+      "ZEC/USD",
+      "FIGR_HELOC/USD",
+      "HYPE/USD",
+      "DOGE/USD",
+      "XMR/USD",
+      "LINK/USD",
+      "WBT/USD",
+      "ADA/USD",
+      "RAIN/USD",
+      "LEO/USD",
+      "XLM/USD",
+      "BCH/USD",
+      "NEAR/USD",
+      "UNI/USD",
+      "LTC/USD",
+      "CC/USD",
+      "AVAX/USD",
+      "USD1/USD",
+      "SUI/USD",
+      "HBAR/USD",
+      "GRAM/USD",
+      "TAO/USD",
+      "SHIB/USD",
+      "USDG/USD"
+    ],
+    "checked_at": "2026-09-25T09:47:01.285703+00:00"
+  },
+  "RAIN/USD": "2026-09-25T04:00:00+00:00"
+}
