@@ -1,7 +1,8 @@
 import unittest
+from unittest.mock import patch
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
-from main import rsi_wilder, candle_end, completed_bars, ema_series, atr_series, make_signals, scheduled_batch
+from main import rsi_wilder, candle_end, completed_bars, ema_series, atr_series, make_signals, scheduled_batch, eligible_crypto_coin, crypto_universe
 
 NY = ZoneInfo("America/New_York")
 
@@ -95,6 +96,47 @@ class StockAlarmTests(unittest.TestCase):
             seen += crypto
         self.assertEqual(len(seen), 30)
         self.assertEqual(len(set(seen)), 30)
+
+    def test_stablecoins_and_tokenized_assets_are_ineligible(self):
+        for coin in (
+            {"symbol": "USD1", "name": "World Liberty Financial USD", "id": "world-liberty-financial-usd", "market_cap": 1000},
+            {"symbol": "USDG", "name": "Global Dollar", "id": "global-dollar", "market_cap": 1000},
+            {"symbol": "FIGR_HELOC", "name": "Figure HELOC", "id": "figure-heloc", "market_cap": 1000},
+            {"symbol": "WBTC", "name": "Wrapped Bitcoin", "id": "wrapped-bitcoin", "market_cap": 1000},
+        ):
+            self.assertFalse(eligible_crypto_coin(coin), coin["symbol"])
+        self.assertTrue(eligible_crypto_coin(
+            {"symbol": "BTC", "name": "Bitcoin", "id": "bitcoin", "market_cap": 1000}))
+
+    def test_dynamic_crypto_universe_excludes_stables_and_keeps_thirty(self):
+        now = datetime(2026, 9, 25, 10, tzinfo=timezone.utc)
+        entries = [
+            {"symbol": "USD1", "name": "World Liberty Financial USD", "id": "world-liberty-financial-usd", "market_cap": 1000},
+            {"symbol": "USDG", "name": "Global Dollar", "id": "global-dollar", "market_cap": 990},
+            {"symbol": "FIGR_HELOC", "name": "Figure HELOC", "id": "figure-heloc", "market_cap": 980},
+        ]
+        entries += [
+            {"symbol": f"C{i}", "name": f"Crypto {i}", "id": f"crypto-{i}", "market_cap": 900 - i}
+            for i in range(35)
+        ]
+        with patch("main.request_json", return_value=entries):
+            pairs = crypto_universe({}, {"crypto_symbols": ["BTC/USD"] * 30}, now)
+        self.assertEqual(len(pairs), 30)
+        self.assertNotIn("USD1/USD", pairs)
+        self.assertNotIn("USDG/USD", pairs)
+        self.assertNotIn("FIGR_HELOC/USD", pairs)
+
+    def test_rejected_crypto_pair_is_not_reintroduced_from_cache(self):
+        now = datetime(2026, 9, 25, 10, tzinfo=timezone.utc)
+        state = {
+            "_crypto_universe": {"pairs": ["USD1/USD", "BTC/USD", "USDG/USD", "ETH/USD"],
+                                 "checked_at": now.isoformat()},
+            "_unsupported_crypto": {"BTC/USD": now.isoformat()},
+        }
+        fallback = ["ETH/USD", "SOL/USD", "AVAX/USD"]
+        with patch("main.request_json", side_effect=RuntimeError("CoinGecko unavailable")):
+            pairs = crypto_universe(state, {"crypto_symbols": fallback}, now)
+        self.assertEqual(pairs, ["ETH/USD", "SOL/USD", "AVAX/USD"])
 
     def test_support_is_disabled_by_default(self):
         bars = sample_bars([10] * 89 + [9.8])
