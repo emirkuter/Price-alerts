@@ -5,6 +5,11 @@
     "LEU": {"support": null}
   },
   "volume_multiplier": 2.0,
+  "ema_fast_period": 20,
+  "ema_slow_period": 50,
+  "atr_period": 14,
+  "atr_baseline_bars": 20,
+  "atr_spike_multiple": 1.5,
   "support_tolerance": 0.01,
   "max_signal_age_minutes": 70
 }
