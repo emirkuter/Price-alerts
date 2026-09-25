@@ -1,6 +1,13 @@
 name: 4-Hour Stock Alerts
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - main.py
+      - test_main.py
+      - config.json
+      - .github/workflows/alerts.yml
   schedule:
     # Two crypto pairs per 15m slot (all 30 covered about every 4h); US stocks after bar closes.
     - cron: '11,26,41,56 * * * *'
@@ -27,7 +34,8 @@ concurrency:
 
 jobs:
   alerts:
-    if: ${{ github.event_name == 'workflow_dispatch' || vars.ALERTS_ENABLED == 'true' }}
+    # Scheduled scans are ON by default; ALERTS_ENABLED=false explicitly pauses them.
+    if: ${{ github.event_name != 'schedule' || vars.ALERTS_ENABLED != 'false' }}
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
@@ -39,7 +47,7 @@ jobs:
         run: python -m unittest -q test_main
       - name: Run selected mode
         env:
-          MODE: ${{ github.event.inputs.mode || 'scan' }}
+          MODE: ${{ github.event_name == 'push' && 'diagnose-crypto' || github.event.inputs.mode || 'scan' }}
           TWELVE_DATA_API_KEY: ${{ secrets.TWELVE_DATA_API_KEY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
