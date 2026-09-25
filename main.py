@@ -5,7 +5,7 @@ import json
 import os
 import statistics
 import sys
-from datetime import datetime, timedelta, time
+from datetime import datetime, timedelta, time, timezone
 from pathlib import Path
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
@@ -71,13 +71,13 @@ def send_message(message):
         raise RuntimeError("Telegram send failed")
 
 
-def fetch_bars(symbol):
+def fetch_bars(symbol, crypto=False):
     key = os.environ.get("TWELVE_DATA_API_KEY", "").strip()
     if not key:
         raise RuntimeError("Missing TWELVE_DATA_API_KEY in GitHub Actions secrets")
     query = urlencode({
         "symbol": symbol, "interval": "4h", "outputsize": 180,
-        "timezone": "America/New_York", "apikey": key,
+        "timezone": "UTC" if crypto else "America/New_York", "apikey": key,
     })
     data = request_json("https://api.twelvedata.com/time_series?" + query)
     if data.get("status") == "error" or "values" not in data:
@@ -87,11 +87,11 @@ def fetch_bars(symbol):
     for item in reversed(data["values"]):
         try:
             candles.append({
-                "dt": datetime.fromisoformat(item["datetime"]).replace(tzinfo=NY),
+                "dt": datetime.fromisoformat(item["datetime"]).replace(tzinfo=timezone.utc if crypto else NY),
                 "close": float(item["close"]),
                 "high": float(item["high"]),
                 "low": float(item["low"]),
-                "volume": float(item["volume"]),
+                "volume": float(item.get("volume") or 0),
             })
         except (KeyError, ValueError, TypeError):
             continue
@@ -103,8 +103,8 @@ def candle_end(dt):
     return min(dt + timedelta(hours=4), datetime.combine(dt.date(), time(16), NY))
 
 
-def completed_bars(bars, now):
-    return [bar for bar in bars if candle_end(bar["dt"]) + timedelta(minutes=2) <= now]
+def completed_bars(bars, now, crypto=False):
+    return [bar for bar in bars if (bar["dt"] + timedelta(hours=4) if crypto else candle_end(bar["dt"])) + timedelta(minutes=2) <= now]
 
 
 def rsi_wilder(closes, period=14):
@@ -173,7 +173,7 @@ def make_signals(
     rsi = rsi_wilder(closes)
     prior_rsi = rsi_wilder(closes[:-1])
     average_volume = statistics.mean(b["volume"] for b in bars[-21:-1])
-    volume_ratio = latest["volume"] / average_volume if average_volume else 0.0
+    volume_ratio = latest["volume"] / average_volume if average_volume else None
 
     ema_fast = ema_series(closes, ema_fast_period)
     ema_slow = ema_series(closes, ema_slow_period)
@@ -192,7 +192,7 @@ def make_signals(
             reasons.append(f"RSI 15 altına geçti: {rsi:.1f} (önceki {prior_rsi:.1f})")
         elif rsi <= 20 < prior_rsi:
             reasons.append(f"RSI 20 altına geçti: {rsi:.1f} (önceki {prior_rsi:.1f})")
-    if volume_ratio >= volume_multiple:
+    if volume_ratio is not None and volume_ratio >= volume_multiple:
         reasons.append(f"4s hacim, önceki 20 mum ortalamasının {volume_ratio:.1f} katı")
 
     if ema_fast[-2] <= ema_slow[-2] and ema_fast[-1] > ema_slow[-1]:
@@ -223,75 +223,97 @@ def make_signals(
     return reasons, indicators
 
 
+def scheduled_batch(now, config):
+    """16 UTC slots per 4h, two crypto pairs per slot; US stock close sweeps."""
+    utc = now.astimezone(timezone.utc)
+    slot = (utc.hour % 4) * 4 + utc.minute // 15
+    cryptos = config["crypto_symbols"][slot * 2:slot * 2 + 2]
+    ny = now.astimezone(NY)
+    stocks = []
+    if ny.weekday() < 5:
+        for hour, minute in ((13, 35), (16, 5)):
+            begin = datetime.combine(ny.date(), time(hour, minute), NY)
+            if begin <= ny < begin + timedelta(hours=1):
+                offset = int((ny - begin).total_seconds() // 900)
+                names = list(config["symbols"])
+                stocks = names[offset * 2:offset * 2 + 2]
+                break
+    return stocks, cryptos
+
+
+def indicators_for(bars, settings, config):
+    return make_signals(
+        bars, support=settings.get("support"),
+        tolerance=config["support_tolerance"],
+        volume_multiple=config["volume_multiplier"],
+        atr_multiple=config["atr_spike_multiple"],
+        ema_fast_period=config["ema_fast_period"],
+        ema_slow_period=config["ema_slow_period"],
+        atr_period=config["atr_period"],
+        atr_window=config["atr_baseline_bars"],
+    )
+
+
 def scan():
     config = json.loads(CONFIG.read_text(encoding="utf-8"))
     state = json.loads(STATE.read_text(encoding="utf-8")) if STATE.exists() else {}
-    now = datetime.now(NY)
-    # NY local clock handles US daylight-saving transitions automatically.
-    if now.weekday() >= 5 or not (time(9, 30) <= now.time() <= time(16, 45)):
-        print("Outside US regular-session review window. No API credits used.")
-        return
+    now = datetime.now(timezone.utc)
+    stocks, cryptos = scheduled_batch(now, config)
+    targets = [(symbol, False) for symbol in stocks]
+    targets += [(symbol, True) for symbol in cryptos]
+    print(f"Batch: {len(stocks)} stocks + {len(cryptos)} crypto pairs.")
     changed = False
-    for symbol, setting in config["symbols"].items():
-        bar_id = None
+    for symbol, crypto in targets:
         try:
-            bars = completed_bars(fetch_bars(symbol), now)
-            min_bars = max(
-                22, config["ema_slow_period"] + 1,
-                config["atr_period"] + config["atr_baseline_bars"] + 2,
-            )
-            if len(bars) < min_bars:
-                print(f"{symbol}: not enough completed bars")
+            bars = completed_bars(fetch_bars(symbol, crypto=crypto), now, crypto=crypto)
+            minimum = max(22, config["ema_slow_period"] + 1,
+                          config["atr_period"] + config["atr_baseline_bars"] + 2)
+            if len(bars) < minimum:
+                print(f"{symbol}: insufficient completed candles ({len(bars)})")
                 continue
             latest = bars[-1]
             bar_id = latest["dt"].isoformat()
             if state.get(symbol) == bar_id:
-                print(f"{symbol}: latest bar already evaluated")
+                print(f"{symbol}: latest candle already processed")
                 continue
-            # Persist evaluation even if there is no signal, avoiding repeat alerts.
+            end = latest["dt"] + timedelta(hours=4) if crypto else candle_end(latest["dt"])
+            age = now - end
+            limit = config["max_crypto_signal_age_minutes"] if crypto else config["max_stock_signal_age_minutes"]
+            if not timedelta(0) <= age <= timedelta(minutes=limit):
+                state[symbol] = bar_id
+                changed = True
+                print(f"{symbol}: historical candle initialized silently")
+                continue
+            signals, m = indicators_for(bars, {} if crypto else config["symbols"][symbol], config)
+            if not m:
+                print(f"{symbol}: missing indicator history")
+                continue
+            if signals:
+                category = "Kripto" if crypto else "Hisse"
+                volume = f"{m['volume_ratio']:.2f}x" if m["volume_ratio"] is not None else "veri yok"
+                when = end.astimezone(IST).strftime("%d.%m.%Y %H:%M")
+                lines = [
+                    f"{category}: {symbol} | 4 saatlik",
+                    f"Kapanış: {latest['close']:.5g} USD",
+                    f"RSI14: {m['rsi']:.1f}",
+                    f"Hacim/20: {volume}",
+                    f"EMA20/50: {m['ema_fast']:.5g}/{m['ema_slow']:.5g}",
+                    f"ATR14: {m['atr']:.5g} (oran {m['atr_ratio']:.2f}x)",
+                    f"Mum bitişi (İstanbul): {when}",
+                ]
+                send_message("\n".join(lines + [""] + ["• " + v for v in signals]
+                                       + ["", "Otomatik teknik uyarıdır, işlem emri değildir."]))
+                print(f"{symbol}: sent {len(signals)} signals")
+            else:
+                print(f"{symbol}: no signals")
             state[symbol] = bar_id
             changed = True
-            bar_age = now - candle_end(latest["dt"])
-            if not timedelta(0) <= bar_age <= timedelta(minutes=config["max_signal_age_minutes"]):
-                print(f"{symbol}: older bar recorded without alert")
-                continue
-            signals, metrics = make_signals(
-                bars,
-                support=setting.get("support"),
-                tolerance=config["support_tolerance"],
-                volume_multiple=config["volume_multiplier"],
-                atr_multiple=config["atr_spike_multiple"],
-                ema_fast_period=config["ema_fast_period"],
-                ema_slow_period=config["ema_slow_period"],
-                atr_period=config["atr_period"],
-                atr_window=config["atr_baseline_bars"],
-            )
-            if not signals:
-                print(f"{symbol}: no signal on newly completed bar")
-                continue
-            when = candle_end(latest["dt"]).astimezone(IST).strftime("%d.%m.%Y %H:%M")
-            message = (
-                f"📊 {symbol} — 4 saatlik alarm\n"
-                f"Kapanış: {latest['close']:.2f} USD\n"
-                f"RSI(14): {metrics['rsi']:.1f}\n"
-                f"Hacim/20 mum: {metrics['volume_ratio']:.1f}x\n"
-                f"EMA 20/50: {metrics['ema_fast']:.2f} / {metrics['ema_slow']:.2f} USD\n"
-                f"ATR(14): {metrics['atr']:.2f} USD "
-                f"(önceki 20 ATR ort.: {metrics['atr_ratio']:.2f}x)\n"
-                f"Bar bitişi (İstanbul): {when}\n\n"
-                + "\n".join("• " + s for s in signals)
-                + "\n\nOtomatik teknik uyarıdır, al/sat emri değildir."
-            )
-            send_message(message)
-            print(f"{symbol}: {len(signals)} signals delivered")
         except Exception as exc:
-            # If delivery or fetch fails, do not mark this candle as processed.
-            if bar_id is not None and state.get(symbol) == bar_id:
-                state.pop(symbol, None)
-            print(f"{symbol}: ERROR: {exc}", file=sys.stderr)
+            print(f"{symbol}: DATA/DELIVERY ERROR: {exc}", file=sys.stderr)
     if changed:
         STATE.write_text(json.dumps(state, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-        print("State saved; workflow will commit it to prevent duplicate notifications.")
+        print("State updated.")
+
 
 
 def diagnose():
@@ -299,7 +321,7 @@ def diagnose():
     cfg = json.loads(CONFIG.read_text(encoding="utf-8"))
     now = datetime.now(NY)
     failures = []
-    for symbol, settings in cfg["symbols"].items():
+    for symbol, settings in list(cfg["symbols"].items())[:4]:
         try:
             bars = completed_bars(fetch_bars(symbol), now)
             reasons, values = make_signals(
@@ -322,7 +344,7 @@ def diagnose():
                 f"{symbol}: API OK, {len(bars)} completed 4-hour bars, "
                 f"last candle {latest['dt'].isoformat()}, "
                 f"close {latest['close']:.2f}, RSI {values['rsi']:.1f}, "
-                f"volume {values['volume_ratio']:.2f}x, "
+                f"volume {values['volume_ratio'] if values['volume_ratio'] is not None else 'N/A'}, "
                 f"EMA20/50 {values['ema_fast']:.2f}/{values['ema_slow']:.2f}, "
                 f"ATR14 {values['atr']:.2f}, ATR ratio {values['atr_ratio']:.2f}x, "
                 f"historical candle signals {len(reasons)}"
