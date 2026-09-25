@@ -76,7 +76,7 @@ def fetch_bars(symbol):
     if not key:
         raise RuntimeError("Missing TWELVE_DATA_API_KEY in GitHub Actions secrets")
     query = urlencode({
-        "symbol": symbol, "interval": "4h", "outputsize": 90,
+        "symbol": symbol, "interval": "4h", "outputsize": 180,
         "timezone": "America/New_York", "apikey": key,
     })
     data = request_json("https://api.twelvedata.com/time_series?" + query)
@@ -89,6 +89,8 @@ def fetch_bars(symbol):
             candles.append({
                 "dt": datetime.fromisoformat(item["datetime"]).replace(tzinfo=NY),
                 "close": float(item["close"]),
+                "high": float(item["high"]),
+                "low": float(item["low"]),
                 "volume": float(item["volume"]),
             })
         except (KeyError, ValueError, TypeError):
@@ -121,34 +123,104 @@ def rsi_wilder(closes, period=14):
     return 100.0 - 100.0 / (1.0 + avg_gain / avg_loss)
 
 
-def make_signals(bars, support, tolerance, volume_multiple):
-    # All indicators use COMPLETED 4-hour candles, never unfinished bars.
-    if len(bars) < 22:
-        return [], None, None
+def ema_series(closes, period):
+    """Exponential moving average, initialized from the first period's SMA."""
+    values = [None] * len(closes)
+    if len(closes) < period:
+        return values
+    previous = sum(closes[:period]) / period
+    values[period - 1] = previous
+    factor = 2.0 / (period + 1)
+    for idx in range(period, len(closes)):
+        previous = closes[idx] * factor + previous * (1 - factor)
+        values[idx] = previous
+    return values
+
+
+def atr_series(bars, period=14):
+    """Wilder's ATR. True range uses high, low and PREVIOUS close."""
+    values = [None] * len(bars)
+    if len(bars) <= period:
+        return values
+    true_ranges = []
+    for idx in range(1, len(bars)):
+        bar = bars[idx]
+        prev_close = bars[idx - 1]["close"]
+        true_ranges.append(max(
+            bar["high"] - bar["low"],
+            abs(bar["high"] - prev_close),
+            abs(bar["low"] - prev_close),
+        ))
+    previous = sum(true_ranges[:period]) / period
+    values[period] = previous
+    for idx in range(period + 1, len(bars)):
+        previous = (previous * (period - 1) + true_ranges[idx - 1]) / period
+        values[idx] = previous
+    return values
+
+
+def make_signals(
+    bars, support=None, tolerance=0.01, volume_multiple=2.0,
+    atr_multiple=1.5, ema_fast_period=20, ema_slow_period=50,
+    atr_period=14, atr_window=20,
+):
+    """All calculations use completed four-hour candles. One combined alert/bar."""
+    minimum = max(22, ema_slow_period + 1, atr_period + atr_window + 2)
+    if len(bars) < minimum:
+        return [], {}
     latest, previous = bars[-1], bars[-2]
     closes = [b["close"] for b in bars]
     rsi = rsi_wilder(closes)
     prior_rsi = rsi_wilder(closes[:-1])
     average_volume = statistics.mean(b["volume"] for b in bars[-21:-1])
     volume_ratio = latest["volume"] / average_volume if average_volume else 0.0
+
+    ema_fast = ema_series(closes, ema_fast_period)
+    ema_slow = ema_series(closes, ema_slow_period)
+    atr = atr_series(bars, atr_period)
+    # Compare the current ATR with the PRIOR 20 ATR values (exclude current).
+    atr_baseline = statistics.mean(atr[-(atr_window + 1):-1])
+    previous_atr_baseline = statistics.mean(atr[-(atr_window + 2):-2])
+    atr_ratio = atr[-1] / atr_baseline if atr_baseline > 0 else 0.0
+    previous_atr_ratio = (
+        atr[-2] / previous_atr_baseline if previous_atr_baseline > 0 else 0.0
+    )
     reasons = []
 
-    # Deep oversold gets priority if both 15 and 20 were crossed at once.
     if rsi is not None and prior_rsi is not None:
         if rsi <= 15 < prior_rsi:
             reasons.append(f"RSI 15 altına geçti: {rsi:.1f} (önceki {prior_rsi:.1f})")
         elif rsi <= 20 < prior_rsi:
             reasons.append(f"RSI 20 altına geçti: {rsi:.1f} (önceki {prior_rsi:.1f})")
     if volume_ratio >= volume_multiple:
-        reasons.append(f"4s hacim son 20 mum ortalamasının {volume_ratio:.1f} katı")
+        reasons.append(f"4s hacim, önceki 20 mum ortalamasının {volume_ratio:.1f} katı")
 
+    if ema_fast[-2] <= ema_slow[-2] and ema_fast[-1] > ema_slow[-1]:
+        reasons.append(f"EMA {ema_fast_period}, EMA {ema_slow_period}'yi YUKARI kesti")
+    elif ema_fast[-2] >= ema_slow[-2] and ema_fast[-1] < ema_slow[-1]:
+        reasons.append(f"EMA {ema_fast_period}, EMA {ema_slow_period}'yi AŞAĞI kesti")
+
+    # Alert on the first ATR threshold crossing, rather than every volatile bar.
+    if atr_ratio >= atr_multiple and previous_atr_ratio < atr_multiple:
+        reasons.append(
+            f"ATR({atr_period}) yükseldi: önceki {atr_window} ATR ortalamasının "
+            f"{atr_ratio:.2f} katı"
+        )
+
+    # Support/resistance is intentionally disabled until levels are configured.
     if support is not None and support > 0:
         if latest["close"] < support <= previous["close"]:
             reasons.append(f"Destek aşağı kırıldı: {support:.2f} USD")
         elif (support <= latest["close"] <= support * (1 + tolerance)
               and previous["close"] > support * (1 + tolerance)):
             reasons.append(f"Desteğe %{tolerance*100:.1f} yaklaştı: {support:.2f} USD")
-    return reasons, rsi, volume_ratio
+
+    indicators = {
+        "rsi": rsi, "volume_ratio": volume_ratio,
+        "ema_fast": ema_fast[-1], "ema_slow": ema_slow[-1],
+        "atr": atr[-1], "atr_ratio": atr_ratio,
+    }
+    return reasons, indicators
 
 
 def scan():
@@ -161,9 +233,14 @@ def scan():
         return
     changed = False
     for symbol, setting in config["symbols"].items():
+        bar_id = None
         try:
             bars = completed_bars(fetch_bars(symbol), now)
-            if len(bars) < 22:
+            min_bars = max(
+                22, config["ema_slow_period"] + 1,
+                config["atr_period"] + config["atr_baseline_bars"] + 2,
+            )
+            if len(bars) < min_bars:
                 print(f"{symbol}: not enough completed bars")
                 continue
             latest = bars[-1]
@@ -178,9 +255,17 @@ def scan():
             if not timedelta(0) <= bar_age <= timedelta(minutes=config["max_signal_age_minutes"]):
                 print(f"{symbol}: older bar recorded without alert")
                 continue
-            signals, rsi, volume_ratio = make_signals(
-                bars, setting.get("support"), config["support_tolerance"],
-                config["volume_multiplier"])
+            signals, metrics = make_signals(
+                bars,
+                support=setting.get("support"),
+                tolerance=config["support_tolerance"],
+                volume_multiple=config["volume_multiplier"],
+                atr_multiple=config["atr_spike_multiple"],
+                ema_fast_period=config["ema_fast_period"],
+                ema_slow_period=config["ema_slow_period"],
+                atr_period=config["atr_period"],
+                atr_window=config["atr_baseline_bars"],
+            )
             if not signals:
                 print(f"{symbol}: no signal on newly completed bar")
                 continue
@@ -188,8 +273,11 @@ def scan():
             message = (
                 f"📊 {symbol} — 4 saatlik alarm\n"
                 f"Kapanış: {latest['close']:.2f} USD\n"
-                f"RSI(14): {rsi:.1f}\n"
-                f"Hacim/20 mum: {volume_ratio:.1f}x\n"
+                f"RSI(14): {metrics['rsi']:.1f}\n"
+                f"Hacim/20 mum: {metrics['volume_ratio']:.1f}x\n"
+                f"EMA 20/50: {metrics['ema_fast']:.2f} / {metrics['ema_slow']:.2f} USD\n"
+                f"ATR(14): {metrics['atr']:.2f} USD "
+                f"(önceki 20 ATR ort.: {metrics['atr_ratio']:.2f}x)\n"
                 f"Bar bitişi (İstanbul): {when}\n\n"
                 + "\n".join("• " + s for s in signals)
                 + "\n\nOtomatik teknik uyarıdır, al/sat emri değildir."
@@ -198,7 +286,7 @@ def scan():
             print(f"{symbol}: {len(signals)} signals delivered")
         except Exception as exc:
             # If delivery or fetch fails, do not mark this candle as processed.
-            if state.get(symbol) == locals().get("bar_id"):
+            if bar_id is not None and state.get(symbol) == bar_id:
                 state.pop(symbol, None)
             print(f"{symbol}: ERROR: {exc}", file=sys.stderr)
     if changed:
