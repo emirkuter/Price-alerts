@@ -8,6 +8,8 @@ on:
       - test_main.py
       - trade_strategy.py
       - test_trade_strategy.py
+      - supertrend_alerts.py
+      - test_supertrend_alerts.py
       - config.json
       - .github/workflows/alerts.yml
   schedule:
@@ -45,15 +47,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Check existing indicators and experimental paper strategy
-        run: python -m unittest -q test_main test_trade_strategy
-      - name: Run selected mode
+      - name: Check indicators, paper strategy, and Supertrend reversals
+        run: python -m unittest -q test_main test_trade_strategy test_supertrend_alerts
+      - name: Run selected mode with Supertrend for scheduled/manual scans
         env:
           MODE: ${{ github.event_name == 'push' && 'diagnose-crypto' || github.event.inputs.mode || 'scan' }}
           TWELVE_DATA_API_KEY: ${{ secrets.TWELVE_DATA_API_KEY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python main.py --mode "$MODE"
+        run: python supertrend_alerts.py --mode "$MODE"
       - name: Commit processed-candle state
         if: ${{ github.event_name == 'schedule' || github.event.inputs.mode == 'scan' }}
         run: |
@@ -63,4 +65,3 @@ jobs:
             git add state.json
             git commit -m "chore: mark evaluated stock candles [skip ci]"
             git push
-          fi
