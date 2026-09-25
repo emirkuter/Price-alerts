@@ -373,7 +373,8 @@ def diagnose():
     cfg = json.loads(CONFIG.read_text(encoding="utf-8"))
     now = datetime.now(NY)
     failures = []
-    for symbol, settings in list(cfg["symbols"].items())[:4]:
+    # Validate newly added stock symbols; original FLNC/TSLA/LEU were checked earlier.
+    for symbol, settings in list(cfg["symbols"].items())[3:]:
         try:
             bars = completed_bars(fetch_bars(symbol), now)
             reasons, values = make_signals(
