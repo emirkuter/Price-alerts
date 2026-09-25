@@ -294,15 +294,61 @@ def scan():
         print("State saved; workflow will commit it to prevent duplicate notifications.")
 
 
+def diagnose():
+    """Read live API history and show all four indicators; never sends or changes state."""
+    cfg = json.loads(CONFIG.read_text(encoding="utf-8"))
+    now = datetime.now(NY)
+    failures = []
+    for symbol, settings in cfg["symbols"].items():
+        try:
+            bars = completed_bars(fetch_bars(symbol), now)
+            reasons, values = make_signals(
+                bars,
+                support=settings.get("support"),
+                tolerance=cfg["support_tolerance"],
+                volume_multiple=cfg["volume_multiplier"],
+                atr_multiple=cfg["atr_spike_multiple"],
+                ema_fast_period=cfg["ema_fast_period"],
+                ema_slow_period=cfg["ema_slow_period"],
+                atr_period=cfg["atr_period"],
+                atr_window=cfg["atr_baseline_bars"],
+            )
+            if not values:
+                raise RuntimeError(
+                    f"Only {len(bars)} completed bars; indicator history is insufficient"
+                )
+            latest = bars[-1]
+            print(
+                f"{symbol}: API OK, {len(bars)} completed 4-hour bars, "
+                f"last candle {latest['dt'].isoformat()}, "
+                f"close {latest['close']:.2f}, RSI {values['rsi']:.1f}, "
+                f"volume {values['volume_ratio']:.2f}x, "
+                f"EMA20/50 {values['ema_fast']:.2f}/{values['ema_slow']:.2f}, "
+                f"ATR14 {values['atr']:.2f}, ATR ratio {values['atr_ratio']:.2f}x, "
+                f"historical candle signals {len(reasons)}"
+            )
+        except Exception as exc:
+            failures.append(symbol)
+            print(f"{symbol}: DIAGNOSTIC ERROR: {exc}", file=sys.stderr)
+    if failures:
+        raise RuntimeError(
+            f"Data diagnostic failed for: {', '.join(failures)}. "
+            "Check symbol access, Twelve Data quota, timezone or API settings."
+        )
+    print("Data diagnostic completed successfully; no Telegram alerts sent.")
+
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", choices=["chat-id", "test", "scan"], required=True)
+    parser.add_argument("--mode", choices=["chat-id", "test", "scan", "diagnose"], required=True)
     mode = parser.parse_args().mode
     if mode == "chat-id":
         find_chat_id()
     elif mode == "test":
         send_message("✅ Emir Trade Alarm test mesajı. Telegram bağlantısı çalışıyor.")
         print("Telegram test message delivered")
+    elif mode == "diagnose":
+        diagnose()
     else:
         scan()
 
