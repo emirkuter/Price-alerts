@@ -15,22 +15,22 @@
       "ADA/USD",
       "RAIN/USD",
       "XLM/USD",
-      "BCH/USD",
       "NEAR/USD",
+      "BCH/USD",
       "UNI/USD",
       "LTC/USD",
-      "CC/USD",
       "AVAX/USD",
       "SUI/USD",
       "HBAR/USD",
       "GRAM/USD",
-      "SHIB/USD",
       "TAO/USD",
+      "SHIB/USD",
       "CRO/USD",
       "BTW/USD",
       "M/USD",
       "ONDO/USD",
-      "OKB/USD"
+      "OKB/USD",
+      "ENA/USD"
     ],
     "checked_at": null
   },
@@ -42,10 +42,11 @@
   "_unsupported_crypto": {
     "WBT/USD": "2026-09-25T13:22:59.223940+00:00",
     "LEO/USD": "2026-09-25T13:34:38.254454+00:00",
-    "CC/USD": "2026-09-25T14:22:21.963921+00:00"
+    "CC/USD": "2026-09-25T14:22:21.963921+00:00",
+    "GRAM/USD": "2026-09-25T14:35:13.263939+00:00"
   },
   "SUI/USD": "2026-09-25T04:00:00+00:00",
-  "HBAR/USD": "2026-09-25T04:00:00+00:00",
+  "HBAR/USD": "2026-09-25T08:00:00+00:00",
   "BNB/USD": "2026-09-25T08:00:00+00:00",
   "XRP/USD": "2026-09-25T08:00:00+00:00",
   "SOL/USD": "2026-09-25T08:00:00+00:00",
