@@ -11,8 +11,10 @@
       "DOGE/USD",
       "LINK/USD",
       "XMR/USD",
+      "WBT/USD",
       "ADA/USD",
       "RAIN/USD",
+      "LEO/USD",
       "XLM/USD",
       "BCH/USD",
       "NEAR/USD",
@@ -27,12 +29,10 @@
       "ENA/USD",
       "ONDO/USD",
       "OKB/USD",
-      "AAVE/USD",
       "BTW/USD",
-      "MNT/USD",
-      "DOT/USD"
+      "AAVE/USD"
     ],
-    "checked_at": "2026-09-26T07:45:08.062667+00:00"
+    "checked_at": "2026-09-26T13:57:48.596569+00:00"
   },
   "RAIN/USD": "2026-09-26T08:00:00+00:00",
   "NEAR/USD": "2026-09-26T04:00:00+00:00",
