@@ -22,21 +22,21 @@
       "AVAX/USD",
       "HBAR/USD",
       "TAO/USD",
-      "BTW/USD",
       "SHIB/USD",
       "CRO/USD",
       "M/USD",
       "ENA/USD",
       "ONDO/USD",
       "OKB/USD",
+      "BTW/USD",
       "AAVE/USD",
       "MNT/USD"
     ],
-    "checked_at": "2026-09-25T23:44:39.106337+00:00"
+    "checked_at": "2026-09-26T05:45:28.427616+00:00"
   },
   "RAIN/USD": "2026-09-26T00:00:00+00:00",
-  "NEAR/USD": "2026-09-25T20:00:00+00:00",
-  "UNI/USD": "2026-09-25T20:00:00+00:00",
+  "NEAR/USD": "2026-09-26T00:00:00+00:00",
+  "UNI/USD": "2026-09-26T00:00:00+00:00",
   "LTC/USD": "2026-09-25T04:00:00+00:00",
   "AVAX/USD": "2026-09-25T20:00:00+00:00",
   "_unsupported_crypto": {
