@@ -14,8 +14,8 @@
       "ADA/USD",
       "RAIN/USD",
       "XLM/USD",
-      "BCH/USD",
       "NEAR/USD",
+      "BCH/USD",
       "UNI/USD",
       "LTC/USD",
       "SUI/USD",
@@ -25,14 +25,14 @@
       "SHIB/USD",
       "CRO/USD",
       "BTW/USD",
+      "M/USD",
       "ENA/USD",
       "ONDO/USD",
       "OKB/USD",
       "QNT/USD",
-      "AAVE/USD",
-      "MNT/USD"
+      "AAVE/USD"
     ],
-    "checked_at": "2026-09-27T03:47:14.435828+00:00"
+    "checked_at": "2026-09-27T09:57:21.503217+00:00"
   },
   "RAIN/USD": "2026-09-27T04:00:00+00:00",
   "NEAR/USD": "2026-09-27T04:00:00+00:00",
