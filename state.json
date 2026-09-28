@@ -26,13 +26,13 @@
       "BTW/USD",
       "SHIB/USD",
       "CRO/USD",
-      "ENA/USD",
       "ONDO/USD",
+      "ENA/USD",
       "OKB/USD",
-      "USYC/USD",
-      "PUMP/USD"
+      "AAVE/USD",
+      "BUIDL/USD"
     ],
-    "checked_at": null
+    "checked_at": "2026-09-28T03:50:12.022809+00:00"
   },
   "RAIN/USD": "2026-09-27T16:00:00+00:00",
   "NEAR/USD": "2026-09-27T16:00:00+00:00",
