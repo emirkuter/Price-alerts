@@ -8,10 +8,13 @@
       "SOL/USD",
       "TRX/USD",
       "ZEC/USD",
+      "HYPE/USD",
       "DOGE/USD",
       "LINK/USD",
       "XMR/USD",
+      "WBT/USD",
       "ADA/USD",
+      "LEO/USD",
       "XLM/USD",
       "NEAR/USD",
       "BCH/USD",
@@ -23,16 +26,13 @@
       "HBAR/USD",
       "QNT/USD",
       "GRAM/USD",
-      "BTW/USD",
       "TAO/USD",
       "SHIB/USD",
       "CRO/USD",
-      "PUMP/USD",
-      "OKB/USD",
-      "ENA/USD",
-      "AAVE/USD"
+      "BTW/USD",
+      "OKB/USD"
     ],
-    "checked_at": null
+    "checked_at": "2026-09-30T07:38:15.181436+00:00"
   },
   "RAIN/USD": "2026-09-29T04:00:00+00:00",
   "NEAR/USD": "2026-09-30T00:00:00+00:00",
