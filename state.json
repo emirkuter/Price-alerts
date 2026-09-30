@@ -19,8 +19,8 @@
       "UNI/USD",
       "LTC/USD",
       "AVAX/USD",
-      "SUI/USD",
       "HBAR/USD",
+      "SUI/USD",
       "QNT/USD",
       "TAO/USD",
       "SHIB/USD",
@@ -30,9 +30,9 @@
       "OKB/USD",
       "AAVE/USD",
       "ONDO/USD",
-      "USYC/USD"
+      "MNT/USD"
     ],
-    "checked_at": null
+    "checked_at": "2026-09-30T11:49:28.369397+00:00"
   },
   "RAIN/USD": "2026-09-29T04:00:00+00:00",
   "NEAR/USD": "2026-09-30T04:00:00+00:00",
