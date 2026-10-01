@@ -8,9 +8,11 @@
       "SOL/USD",
       "TRX/USD",
       "ZEC/USD",
+      "HYPE/USD",
       "DOGE/USD",
       "LINK/USD",
       "XMR/USD",
+      "WBT/USD",
       "ADA/USD",
       "RAIN/USD",
       "XLM/USD",
@@ -19,20 +21,18 @@
       "UNI/USD",
       "LTC/USD",
       "AVAX/USD",
+      "CC/USD",
       "SUI/USD",
       "HBAR/USD",
+      "GRAM/USD",
       "QNT/USD",
       "BTW/USD",
-      "TAO/USD",
       "CRO/USD",
+      "TAO/USD",
       "SHIB/USD",
-      "ENA/USD",
-      "PUMP/USD",
-      "AAVE/USD",
-      "OKB/USD",
-      "ONDO/USD"
+      "ENA/USD"
     ],
-    "checked_at": null
+    "checked_at": "2026-10-01T11:35:32.660742+00:00"
   },
   "RAIN/USD": "2026-10-01T04:00:00+00:00",
   "NEAR/USD": "2026-10-01T04:00:00+00:00",
@@ -40,7 +40,6 @@
   "LTC/USD": "2026-10-01T04:00:00+00:00",
   "AVAX/USD": "2026-10-01T04:00:00+00:00",
   "_unsupported_crypto": {
-    "USYC/USD": "2026-09-30T11:33:29.215447+00:00",
     "LEO/USD": "2026-09-30T13:24:51.204600+00:00",
     "PUMP/USD": "2026-10-01T11:22:27.582768+00:00"
   },
