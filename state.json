@@ -18,21 +18,21 @@
       "BCH/USD",
       "UNI/USD",
       "LTC/USD",
-      "SUI/USD",
       "AVAX/USD",
+      "SUI/USD",
       "HBAR/USD",
       "QNT/USD",
       "BTW/USD",
       "TAO/USD",
-      "SHIB/USD",
       "CRO/USD",
+      "SHIB/USD",
       "ENA/USD",
-      "OKB/USD",
+      "PUMP/USD",
       "AAVE/USD",
-      "ONDO/USD",
-      "MNT/USD"
+      "OKB/USD",
+      "ONDO/USD"
     ],
-    "checked_at": "2026-10-01T01:48:32.408831+00:00"
+    "checked_at": "2026-10-01T07:51:39.840919+00:00"
   },
   "RAIN/USD": "2026-10-01T00:00:00+00:00",
   "NEAR/USD": "2026-10-01T00:00:00+00:00",
