@@ -22,17 +22,17 @@
       "AVAX/USD",
       "SUI/USD",
       "HBAR/USD",
-      "QNT/USD",
       "BTW/USD",
+      "QNT/USD",
       "TAO/USD",
       "CRO/USD",
       "SHIB/USD",
-      "ENA/USD",
-      "OKB/USD",
       "AAVE/USD",
-      "USYC/USD"
+      "OKB/USD",
+      "ENA/USD",
+      "ONDO/USD"
     ],
-    "checked_at": null
+    "checked_at": "2026-10-01T15:52:27.345018+00:00"
   },
   "RAIN/USD": "2026-10-01T04:00:00+00:00",
   "NEAR/USD": "2026-10-01T08:00:00+00:00",
