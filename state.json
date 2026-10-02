@@ -15,8 +15,8 @@
       "LEO/USD",
       "RAIN/USD",
       "XLM/USD",
-      "NEAR/USD",
       "BCH/USD",
+      "NEAR/USD",
       "UNI/USD",
       "LTC/USD",
       "AVAX/USD",
@@ -29,10 +29,10 @@
       "TAO/USD",
       "AAVE/USD",
       "OKB/USD",
-      "PUMP/USD",
-      "USYC/USD"
+      "M/USD",
+      "ENA/USD"
     ],
-    "checked_at": null
+    "checked_at": "2026-10-02T19:49:05.721288+00:00"
   },
   "RAIN/USD": "2026-10-02T08:00:00+00:00",
   "NEAR/USD": "2026-10-02T12:00:00+00:00",
