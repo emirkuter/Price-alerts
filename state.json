@@ -13,8 +13,8 @@
       "LINK/USD",
       "ADA/USD",
       "RAIN/USD",
-      "XLM/USD",
       "NEAR/USD",
+      "XLM/USD",
       "BCH/USD",
       "LTC/USD",
       "AVAX/USD",
@@ -27,12 +27,12 @@
       "SHIB/USD",
       "CRO/USD",
       "ENA/USD",
+      "PUMP/USD",
       "OKB/USD",
       "AAVE/USD",
-      "ONDO/USD",
-      "BUIDL/USD"
+      "ONDO/USD"
     ],
-    "checked_at": null
+    "checked_at": "2026-10-07T19:49:08.910868+00:00"
   },
   "RAIN/USD": "2026-10-07T08:00:00+00:00",
   "NEAR/USD": "2026-10-07T12:00:00+00:00",
