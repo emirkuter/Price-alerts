@@ -17,8 +17,8 @@
       "NEAR/USD",
       "BCH/USD",
       "LTC/USD",
-      "UNI/USD",
       "AVAX/USD",
+      "UNI/USD",
       "SUI/USD",
       "BTW/USD",
       "HBAR/USD",
@@ -29,10 +29,10 @@
       "ENA/USD",
       "OKB/USD",
       "AAVE/USD",
-      "ONDO/USD",
-      "M/USD"
+      "PUMP/USD",
+      "ONDO/USD"
     ],
-    "checked_at": null
+    "checked_at": "2026-10-10T03:52:06.810406+00:00"
   },
   "RAIN/USD": "2026-10-09T20:00:00+00:00",
   "NEAR/USD": "2026-10-09T20:00:00+00:00",
@@ -40,7 +40,6 @@
   "LTC/USD": "2026-10-09T20:00:00+00:00",
   "AVAX/USD": "2026-10-09T20:00:00+00:00",
   "_unsupported_crypto": {
-    "USDY/USD": "2026-10-09T03:40:03.303891+00:00",
     "LEO/USD": "2026-10-09T05:23:30.220906+00:00",
     "BUIDL/USD": "2026-10-09T07:40:24.783686+00:00",
     "CC/USD": "2026-10-09T14:04:46.402940+00:00",
