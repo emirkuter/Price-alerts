@@ -9,12 +9,12 @@
       "TRX/USD",
       "ZEC/USD",
       "DOGE/USD",
-      "XMR/USD",
       "LINK/USD",
+      "XMR/USD",
       "ADA/USD",
       "RAIN/USD",
-      "XLM/USD",
       "NEAR/USD",
+      "XLM/USD",
       "BCH/USD",
       "LTC/USD",
       "AVAX/USD",
@@ -30,9 +30,9 @@
       "AAVE/USD",
       "OKB/USD",
       "ONDO/USD",
-      "USDY/USD"
+      "BUIDL/USD"
     ],
-    "checked_at": null
+    "checked_at": "2026-10-10T11:48:42.063683+00:00"
   },
   "RAIN/USD": "2026-10-10T00:00:00+00:00",
   "NEAR/USD": "2026-10-10T04:00:00+00:00",
