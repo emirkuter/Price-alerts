@@ -17,10 +17,12 @@
       "XLM/USD",
       "BCH/USD",
       "LTC/USD",
-      "AVAX/USD",
+      "CC/USD",
       "UNI/USD",
+      "AVAX/USD",
       "SUI/USD",
       "BTW/USD",
+      "GRAM/USD",
       "HBAR/USD",
       "QNT/USD",
       "TAO/USD",
@@ -28,11 +30,9 @@
       "CRO/USD",
       "ENA/USD",
       "AAVE/USD",
-      "OKB/USD",
-      "ONDO/USD",
-      "BUIDL/USD"
+      "OKB/USD"
     ],
-    "checked_at": null
+    "checked_at": "2026-10-10T15:48:47.811077+00:00"
   },
   "RAIN/USD": "2026-10-10T08:00:00+00:00",
   "NEAR/USD": "2026-10-10T08:00:00+00:00",
