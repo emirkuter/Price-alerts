@@ -8,6 +8,7 @@
       "SOL/USD",
       "TRX/USD",
       "ZEC/USD",
+      "HYPE/USD",
       "DOGE/USD",
       "XMR/USD",
       "LINK/USD",
@@ -20,19 +21,18 @@
       "UNI/USD",
       "AVAX/USD",
       "SUI/USD",
+      "GRAM/USD",
       "HBAR/USD",
       "TAO/USD",
       "SHIB/USD",
-      "BTW/USD",
       "QNT/USD",
+      "BTW/USD",
       "CRO/USD",
       "ENA/USD",
       "OKB/USD",
-      "AAVE/USD",
-      "ONDO/USD",
-      "BUIDL/USD"
+      "AAVE/USD"
     ],
-    "checked_at": null
+    "checked_at": "2026-10-16T19:58:41.137287+00:00"
   },
   "RAIN/USD": "2026-10-16T12:00:00+00:00",
   "NEAR/USD": "2026-10-16T04:00:00+00:00",
