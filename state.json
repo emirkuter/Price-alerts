@@ -10,6 +10,7 @@
       "ZEC/USD",
       "DOGE/USD",
       "XMR/USD",
+      "WBT/USD",
       "LINK/USD",
       "ADA/USD",
       "XLM/USD",
@@ -18,25 +19,24 @@
       "BCH/USD",
       "LTC/USD",
       "UNI/USD",
+      "CC/USD",
       "AVAX/USD",
       "SUI/USD",
       "HBAR/USD",
       "SHIB/USD",
       "TAO/USD",
       "CRO/USD",
-      "ENA/USD",
       "QNT/USD",
       "BTW/USD",
+      "ENA/USD",
       "OKB/USD",
-      "AAVE/USD",
-      "BUIDL/USD",
-      "ONDO/USD"
+      "BUIDL/USD"
     ],
-    "checked_at": "2026-10-24T04:05:50.414342+00:00"
+    "checked_at": "2026-10-24T10:11:36.755379+00:00"
   },
   "RAIN/USD": "2026-10-24T00:00:00+00:00",
   "NEAR/USD": "2026-10-24T00:00:00+00:00",
-  "UNI/USD": "2026-10-24T00:00:00+00:00",
+  "UNI/USD": "2026-10-24T04:00:00+00:00",
   "LTC/USD": "2026-10-24T04:00:00+00:00",
   "AVAX/USD": "2026-10-24T00:00:00+00:00",
   "_unsupported_crypto": {
