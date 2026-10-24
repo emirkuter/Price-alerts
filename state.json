@@ -11,7 +11,6 @@
       "DOGE/USD",
       "XMR/USD",
       "LINK/USD",
-      "LEO/USD",
       "ADA/USD",
       "XLM/USD",
       "NEAR/USD",
@@ -30,15 +29,16 @@
       "ENA/USD",
       "OKB/USD",
       "AAVE/USD",
-      "M/USD"
+      "M/USD",
+      "ONDO/USD"
     ],
-    "checked_at": null
+    "checked_at": "2026-10-24T02:09:01.490119+00:00"
   },
   "RAIN/USD": "2026-10-23T08:00:00+00:00",
   "NEAR/USD": "2026-10-23T16:00:00+00:00",
-  "UNI/USD": "2026-10-23T16:00:00+00:00",
+  "UNI/USD": "2026-10-23T20:00:00+00:00",
   "LTC/USD": "2026-10-23T16:00:00+00:00",
-  "AVAX/USD": "2026-10-22T08:00:00+00:00",
+  "AVAX/USD": "2026-10-23T20:00:00+00:00",
   "_unsupported_crypto": {
     "BUIDL/USD": "2026-10-23T03:35:28.336746+00:00",
     "PUMP/USD": "2026-10-23T03:35:28.336746+00:00",
