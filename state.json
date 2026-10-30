@@ -12,8 +12,8 @@
       "DOGE/USD",
       "XMR/USD",
       "WBT/USD",
-      "LEO/USD",
       "LINK/USD",
+      "LEO/USD",
       "ADA/USD",
       "XLM/USD",
       "BCH/USD",
@@ -25,14 +25,14 @@
       "AVAX/USD",
       "SUI/USD",
       "HBAR/USD",
-      "QNT/USD",
       "SHIB/USD",
+      "QNT/USD",
       "TAO/USD",
       "CRO/USD",
       "ENA/USD",
-      "USYC/USD"
+      "USDY/USD"
     ],
-    "checked_at": "2026-10-30T15:51:26.758467+00:00"
+    "checked_at": "2026-10-30T23:53:42.937579+00:00"
   },
   "RAIN/USD": "2026-10-26T16:00:00+00:00",
   "NEAR/USD": "2026-10-28T16:00:00+00:00",
@@ -40,7 +40,6 @@
   "LTC/USD": "2026-10-25T00:00:00+00:00",
   "AVAX/USD": "2026-10-29T08:00:00+00:00",
   "_unsupported_crypto": {
-    "USDY/USD": "2026-10-29T23:38:45.910197+00:00",
     "GRAM/USD": "2026-10-30T02:54:36.947464+00:00"
   },
   "SUI/USD": "2026-10-24T16:00:00+00:00",
