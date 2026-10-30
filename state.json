@@ -16,11 +16,12 @@
       "LINK/USD",
       "ADA/USD",
       "XLM/USD",
-      "NEAR/USD",
       "BCH/USD",
+      "NEAR/USD",
       "RAIN/USD",
-      "LTC/USD",
       "UNI/USD",
+      "LTC/USD",
+      "CC/USD",
       "AVAX/USD",
       "SUI/USD",
       "HBAR/USD",
@@ -29,10 +30,9 @@
       "TAO/USD",
       "CRO/USD",
       "ENA/USD",
-      "OKB/USD",
       "USYC/USD"
     ],
-    "checked_at": "2026-10-30T09:08:34.452070+00:00"
+    "checked_at": "2026-10-30T15:51:26.758467+00:00"
   },
   "RAIN/USD": "2026-10-26T16:00:00+00:00",
   "NEAR/USD": "2026-10-28T16:00:00+00:00",
@@ -40,7 +40,6 @@
   "LTC/USD": "2026-10-25T00:00:00+00:00",
   "AVAX/USD": "2026-10-29T08:00:00+00:00",
   "_unsupported_crypto": {
-    "CC/USD": "2026-10-29T14:29:09.016336+00:00",
     "USDY/USD": "2026-10-29T23:38:45.910197+00:00",
     "GRAM/USD": "2026-10-30T02:54:36.947464+00:00"
   },
