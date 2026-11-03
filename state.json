@@ -9,10 +9,8 @@
       "TRX/USD",
       "HYPE/USD",
       "ZEC/USD",
-      "DOGE/USD",
       "XMR/USD",
-      "WBT/USD",
-      "LEO/USD",
+      "DOGE/USD",
       "LINK/USD",
       "ADA/USD",
       "XLM/USD",
@@ -30,9 +28,11 @@
       "TAO/USD",
       "CRO/USD",
       "USDY/USD",
-      "OKB/USD"
+      "OKB/USD",
+      "ENA/USD",
+      "USYC/USD"
     ],
-    "checked_at": null
+    "checked_at": "2026-11-03T07:59:41.397642+00:00"
   },
   "RAIN/USD": "2026-10-26T16:00:00+00:00",
   "NEAR/USD": "2026-10-28T16:00:00+00:00",
