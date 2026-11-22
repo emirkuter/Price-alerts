@@ -24,15 +24,15 @@
       "UNI/USD",
       "GRAM/USD",
       "SUI/USD",
-      "USDY/USD",
       "RAIN/USD",
       "HBAR/USD",
       "TAO/USD",
       "SHIB/USD",
       "CRO/USD",
-      "QNT/USD"
+      "QNT/USD",
+      "EURSAFO/USD"
     ],
-    "checked_at": null
+    "checked_at": "2026-11-22T23:53:40.456915+00:00"
   },
   "RAIN/USD": "2026-11-15T00:00:00+00:00",
   "NEAR/USD": "2026-11-09T04:00:00+00:00",
