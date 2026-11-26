@@ -9,11 +9,11 @@
       "TRX/USD",
       "HYPE/USD",
       "ZEC/USD",
-      "XMR/USD",
       "DOGE/USD",
+      "XMR/USD",
       "LEO/USD",
-      "LINK/USD",
       "WBT/USD",
+      "LINK/USD",
       "ADA/USD",
       "XLM/USD",
       "BCH/USD",
@@ -22,17 +22,17 @@
       "CC/USD",
       "AVAX/USD",
       "UNI/USD",
-      "GRAM/USD",
       "SUI/USD",
+      "GRAM/USD",
+      "USDY/USD",
       "HBAR/USD",
-      "TAO/USD",
+      "QNT/USD",
       "SHIB/USD",
       "USYC/USD",
-      "QNT/USD",
-      "CRO/USD",
-      "RAIN/USD"
+      "TAO/USD",
+      "CRO/USD"
     ],
-    "checked_at": "2026-11-26T05:11:58.484402+00:00"
+    "checked_at": null
   },
   "RAIN/USD": "2026-11-15T00:00:00+00:00",
   "NEAR/USD": "2026-11-09T04:00:00+00:00",
@@ -40,8 +40,8 @@
   "LTC/USD": "2026-11-13T04:00:00+00:00",
   "AVAX/USD": "2026-11-23T08:00:00+00:00",
   "_unsupported_crypto": {
-    "USDY/USD": "2026-11-25T14:52:24.304087+00:00",
-    "EURSAFO/USD": "2026-11-25T23:22:50.703813+00:00"
+    "EURSAFO/USD": "2026-11-25T23:22:50.703813+00:00",
+    "USYC/USD": "2026-11-26T15:27:46.810791+00:00"
   },
   "SUI/USD": "2026-11-22T12:00:00+00:00",
   "HBAR/USD": "2026-11-25T08:00:00+00:00",
@@ -53,7 +53,7 @@
   "XMR/USD": "2026-11-26T00:00:00+00:00",
   "LINK/USD": "2026-11-24T16:00:00+00:00",
   "BCH/USD": "2026-11-23T20:00:00+00:00",
-  "SHIB/USD": "2026-11-21T20:00:00+00:00",
+  "SHIB/USD": "2026-11-26T08:00:00+00:00",
   "CRO/USD": "2026-11-24T04:00:00+00:00",
   "ONDO/USD": "2026-10-25T00:00:00+00:00",
   "OKB/USD": "2026-11-18T12:00:00+00:00",
